@@ -4,6 +4,12 @@ const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
 const itemFilter = document.querySelector('#filter');
 
+const displayItems = () => {
+  //Displays Items from localStorage to DOM
+  const itemsFromStorage = getItemsFromStorage();
+  itemsFromStorage.forEach((item) => addItemToDOM(item));
+};
+
 const onAddItemSubmit = (e) => {
   e.preventDefault();
 
@@ -34,23 +40,6 @@ const addItemToDOM = (item) => {
   itemList.appendChild(li);
 };
 
-const addItemToStorage = (item) => {
-  let itemsFromStorage;
-  //if theres nothing in local storage so we set items from storage to an empty array
-  if (localStorage.getItem('items') === null) {
-    itemsFromStorage = [];
-  } else {
-    //if items are in storage we parse them
-    //converting them from a string to an array and putting those items into the itemsFromStorage variable
-    itemsFromStorage = JSON.parse(localStorage.getItem('items'));
-  }
-  //adding new item to array
-  itemsFromStorage.push(item);
-
-  //convert to JSON string and set to localStorage
-  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
-};
-
 const createButton = (classes) => {
   const button = document.createElement('button');
   button.className = classes;
@@ -63,6 +52,29 @@ const createIcon = (classes) => {
   const icon = document.createElement('i');
   icon.className = classes;
   return icon;
+};
+
+const addItemToStorage = (item) => {
+  const itemsFromStorage = getItemsFromStorage();
+
+  //add new item to localStorage Array
+  itemsFromStorage.push(item);
+
+  //convert to JSON string and set to localStorage
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+};
+
+const getItemsFromStorage = () => {
+  let itemsFromStorage;
+  //if theres nothing in local storage so we set items from storage to an empty array
+  if (localStorage.getItem('items') === null) {
+    itemsFromStorage = [];
+  } else {
+    //if items are in storage we parse them
+    //converting them from a string to an array and putting those items into the itemsFromStorage variable
+    itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+  }
+  return itemsFromStorage;
 };
 
 const removeItem = (e) => {
@@ -116,5 +128,7 @@ itemForm.addEventListener('submit', onAddItemSubmit);
 itemList.addEventListener('click', removeItem);
 clearBtn.addEventListener('click', clearItems);
 itemFilter.addEventListener('input', filterItems);
+//Loads items when the DOM is loaded
+document.addEventListener('DOMContentLoaded', displayItems);
 
 checkUI();
