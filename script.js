@@ -8,6 +8,8 @@ const displayItems = () => {
   //Displays Items from localStorage to DOM
   const itemsFromStorage = getItemsFromStorage();
   itemsFromStorage.forEach((item) => addItemToDOM(item));
+  //reloads the UI so filter and clear all button are displayed as well
+  checkUI();
 };
 
 const onAddItemSubmit = (e) => {
@@ -77,14 +79,40 @@ const getItemsFromStorage = () => {
   return itemsFromStorage;
 };
 
-const removeItem = (e) => {
+const onClickItem = (e) => {
   if (e.target.parentElement.classList.contains('remove-item')) {
-    if (confirm('Are you sure?')) {
-      //icon > button > li = remove
-      e.target.parentElement.parentElement.remove();
-      checkUI();
-    }
+    // //icon > button > li = remove
+    removeItem(e.target.parentElement.parentElement);
   }
+};
+
+const removeItem = (item) => {
+  if (confirm('Are You Sure?')) {
+    //The item being passed in is the e.target.parentElement.parentElement
+    //Remove Item from DOM
+    item.remove();
+
+    //Remove Item from localStorage
+    removeItemFromStorage(item.textContent);
+
+    checkUI();
+  }
+};
+
+const removeItemFromStorage = (item) => {
+  let itemsFromStorage = getItemsFromStorage();
+
+  //Filter out item to be removed
+  //Will return a new array with the deleted item removed
+  itemsFromStorage = itemsFromStorage.filter((i) => {
+    if (i !== item) {
+      return i;
+    }
+  });
+
+  //re-set to localstorage with the item we want to remove, removed
+
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 };
 
 const clearItems = (e) => {
@@ -94,6 +122,8 @@ const clearItems = (e) => {
     //then pass in the first child (ul.li) whole
     itemList.removeChild(itemList.firstChild);
   }
+  //Clear from localStorage
+  localStorage.removeItem('items');
   checkUI();
 };
 const filterItems = (e) => {
@@ -123,12 +153,19 @@ const checkUI = () => {
   }
 };
 
-//Event Listeners
-itemForm.addEventListener('submit', onAddItemSubmit);
-itemList.addEventListener('click', removeItem);
-clearBtn.addEventListener('click', clearItems);
-itemFilter.addEventListener('input', filterItems);
-//Loads items when the DOM is loaded
-document.addEventListener('DOMContentLoaded', displayItems);
+//Initialize app so event listeners aren't in the global scope
+//The less functions in the global scope the better
 
-checkUI();
+const init = () => {
+  //Event Listeners
+  itemForm.addEventListener('submit', onAddItemSubmit);
+  itemList.addEventListener('click', onClickItem);
+  clearBtn.addEventListener('click', clearItems);
+  itemFilter.addEventListener('input', filterItems);
+  //Loads items when the DOM is loaded
+  document.addEventListener('DOMContentLoaded', displayItems);
+
+  checkUI();
+};
+
+init();
