@@ -76,6 +76,8 @@ const filterItems = (e) => {
   });
 };
 
+//test
+
 const checkUI = () => {
   const items = itemList.querySelectorAll('li');
   if (items.length === 0) {
