@@ -4,7 +4,7 @@ const itemList = document.querySelector('#item-list');
 const clearBtn = document.querySelector('#clear');
 const itemFilter = document.querySelector('#filter');
 
-const addItem = (e) => {
+const onAddItemSubmit = (e) => {
   e.preventDefault();
 
   const newItem = itemInput.value;
@@ -14,17 +14,41 @@ const addItem = (e) => {
     alert('Please add an Item');
     return;
   }
+  //Create item DOM element
+  addItemToDOM(newItem);
+  //Add item to local storage
+  addItemToStorage(newItem);
+  checkUI();
+  itemInput.value = '';
+};
+
+const addItemToDOM = (item) => {
   //Create list item
   const li = document.createElement('li');
-  li.appendChild(document.createTextNode(newItem));
+  li.appendChild(document.createTextNode(item));
 
   const button = createButton('remove-item btn-link text-red');
   li.appendChild(button);
 
   //Add li to DOM
   itemList.appendChild(li);
-  checkUI();
-  itemInput.value = '';
+};
+
+const addItemToStorage = (item) => {
+  let itemsFromStorage;
+  //if theres nothing in local storage so we set items from storage to an empty array
+  if (localStorage.getItem('items') === null) {
+    itemsFromStorage = [];
+  } else {
+    //if items are in storage we parse them
+    //converting them from a string to an array and putting those items into the itemsFromStorage variable
+    itemsFromStorage = JSON.parse(localStorage.getItem('items'));
+  }
+  //adding new item to array
+  itemsFromStorage.push(item);
+
+  //convert to JSON string and set to localStorage
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 };
 
 const createButton = (classes) => {
@@ -76,8 +100,6 @@ const filterItems = (e) => {
   });
 };
 
-//test
-
 const checkUI = () => {
   const items = itemList.querySelectorAll('li');
   if (items.length === 0) {
@@ -90,7 +112,7 @@ const checkUI = () => {
 };
 
 //Event Listeners
-itemForm.addEventListener('submit', addItem);
+itemForm.addEventListener('submit', onAddItemSubmit);
 itemList.addEventListener('click', removeItem);
 clearBtn.addEventListener('click', clearItems);
 itemFilter.addEventListener('input', filterItems);
